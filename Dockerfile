@@ -1,16 +1,25 @@
 # ---------- Stage 1: Builder ----------
-FROM python:3.14-slim AS builder
+FROM python:3.14.6-slim AS builder
 
 WORKDIR /build
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
 RUN python -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
-
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip setuptools msgpack && \
+    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip setuptools msgpack
 
 # ---------- Stage 2: Production ----------
-FROM python:3.14-slim
+FROM python:3.14.6-slim
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN useradd \
